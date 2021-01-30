@@ -1,0 +1,114 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: eks-log-collector-job
+spec:
+  parallelism: 1
+  completions: 1
+  backoffLimit: 3
+  template:
+    spec:
+      nodeName: {{NODE_NAME}}
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+        beta.kubernetes.io/arch: amd64
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - image: public.ecr.aws/v5p1v7r9/eks-log-collector:0.6.2
+        imagePullPolicy: Always
+        name: eks-log-collector-job
+        command:
+          - "sh"
+          - "-c"
+          - "bash eks-log-collector.sh && aws s3 cp /var/log s3://{{S3_BUCKET}}/{{S3_KEY}} --recursive --exclude \"*\" --include \"eks_i-*.tar.gz\" && rm -f /var/log/eks_i-*.tar.gz"
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+        volumeMounts:
+        - name: etc-systemd-system-kubeletservice
+          mountPath: /etc/systemd/system/kubelet.service
+          readOnly: true
+        - name: etc-systemd-system-kubeletserviced
+          mountPath: /etc/systemd/system/kubelet.service.d
+          readOnly: true
+        - name: var-log
+          mountPath: /var/log
+        - name: var-run-aws-node-ipamjson
+          mountPath: /var/run/aws-node/ipam.json
+          readOnly: true
+        - name: run-aws-node-ipamjson
+          mountPath: /run/aws-node/ipam.json
+          readOnly: true
+        - name: var-run-dockersock
+          mountPath: /var/run/docker.sock
+          readOnly: true
+        - name: run-dockersock
+          mountPath: /run/docker.sock
+          readOnly: true
+        - name: etc-machine-id
+          mountPath: /etc/machine-id
+          readOnly: true
+        - name: var-lib-kubelet-kubeconfig
+          mountPath: /var/lib/kubelet/kubeconfig
+          readOnly: true
+        - name: var-lib-cloud-data-instance-id
+          mountPath: /var/lib/cloud/data/instance-id
+          readOnly: true
+        - name: etc-cni-netd
+          mountPath: /etc/cni/net.d
+          readOnly: true
+        - name: var-lib-docker-containers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+      restartPolicy: Never
+      volumes:
+      - name: etc-systemd-system-kubeletservice
+        hostPath:
+          path: /etc/systemd/system/kubelet.service
+          type: File
+      - name: etc-systemd-system-kubeletserviced
+        hostPath:
+          path: /etc/systemd/system/kubelet.service.d
+          type: Directory
+      - name: var-log
+        hostPath:
+          path: /var/log
+          type: Directory
+      - name: var-run-aws-node-ipamjson
+        hostPath:
+          path: /var/run/aws-node/ipam.json
+          type: File
+      - name: run-aws-node-ipamjson
+        hostPath:
+          path: /run/aws-node/ipam.json
+          type: File
+      - name: var-run-dockersock
+        hostPath:
+          path: /var/run/docker.sock
+          type: File
+      - name: run-dockersock
+        hostPath:
+          path: /run/docker.sock
+          type: File
+      - name: etc-machine-id
+        hostPath:
+          path: /etc/machine-id
+          type: File
+      - name: var-lib-kubelet-kubeconfig
+        hostPath:
+          path: /var/lib/kubelet/kubeconfig
+          type: File
+      - name: var-lib-cloud-data-instance-id
+        hostPath:
+          path: /var/lib/cloud/data/instance-id
+          type: File
+      - name: etc-cni-netd
+        hostPath:
+          path: /etc/cni/net.d
+          type: Directory
+      - name: var-lib-docker-containers
+        hostPath:
+          path: /var/lib/docker/containers
+          type: Directory
