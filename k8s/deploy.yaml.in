@@ -87,11 +87,11 @@ spec:
       - name: var-run-dockersock
         hostPath:
           path: /var/run/docker.sock
-          type: File
+          type: Socket
       - name: run-dockersock
         hostPath:
           path: /run/docker.sock
-          type: File
+          type: Socket
       - name: etc-machine-id
         hostPath:
           path: /etc/machine-id
