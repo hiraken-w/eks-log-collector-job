@@ -8,7 +8,7 @@ spec:
   backoffLimit: 3
   template:
     spec:
-      nodeName: {{NODE_NAME}}
+      nodeName: ${NODE_NAME}
       nodeSelector:
         beta.kubernetes.io/os: linux
         beta.kubernetes.io/arch: amd64
@@ -21,7 +21,7 @@ spec:
         command:
           - "sh"
           - "-c"
-          - "bash eks-log-collector.sh && aws s3 cp /var/log s3://{{S3_BUCKET}}/{{S3_KEY}} --recursive --exclude \"*\" --include \"eks_i-*.tar.gz\" && rm -f /var/log/eks_i-*.tar.gz"
+          - "bash eks-log-collector.sh && aws s3 cp /var/log s3://${S3_BUCKET}/${S3_KEY} --recursive --exclude \"*\" --include \"eks_i-*.tar.gz\" && rm -f /var/log/eks_i-*.tar.gz"
         securityContext:
           capabilities:
             add:
