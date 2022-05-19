@@ -62,6 +62,9 @@ spec:
         - name: etc-containerd
           mountPath: /etc/containerd
           readOnly: true
+        - name: var-lib-docker-containers
+          mountPath: /var/lib/docker/containers
+          readOnly: true          
       restartPolicy: Never
       volumes:
       - name: etc-systemd-system-kubeletservice
@@ -111,4 +114,8 @@ spec:
       - name: etc-containerd
         hostPath:
           path: /etc/containerd
+          type: Directory
+      - name: var-lib-docker-containers
+        hostPath:
+          path: /var/lib/docker/containers
           type: Directory
