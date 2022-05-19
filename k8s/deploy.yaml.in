@@ -10,12 +10,12 @@ spec:
     spec:
       nodeName: ${NODE_NAME}
       nodeSelector:
-        beta.kubernetes.io/os: linux
-        beta.kubernetes.io/arch: amd64
+        kubernetes.io/os: linux
+        kubernetes.io/arch: amd64
       hostNetwork: true
       hostPID: true
       containers:
-      - image: public.ecr.aws/v5p1v7r9/eks-log-collector:0.6.2
+      - image: public.ecr.aws/v5p1v7r9/eks-log-collector:0.6.2-2
         imagePullPolicy: Always
         name: eks-log-collector-job
         command:
@@ -59,8 +59,8 @@ spec:
         - name: etc-cni-netd
           mountPath: /etc/cni/net.d
           readOnly: true
-        - name: var-lib-docker-containers
-          mountPath: /var/lib/docker/containers
+        - name: etc-containerd
+          mountPath: /etc/containerd
           readOnly: true
       restartPolicy: Never
       volumes:
@@ -108,7 +108,7 @@ spec:
         hostPath:
           path: /etc/cni/net.d
           type: Directory
-      - name: var-lib-docker-containers
+      - name: etc-containerd
         hostPath:
-          path: /var/lib/docker/containers
+          path: /etc/containerd
           type: Directory
